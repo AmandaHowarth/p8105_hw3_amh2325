@@ -1,0 +1,15 @@
+---
+title: "p8105_hw3_amh2325"
+author: "Amanda Howarth"
+date: "10/9/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
