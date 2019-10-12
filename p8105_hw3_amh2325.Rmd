@@ -116,9 +116,6 @@ brfss_plot2006_2010 = brfss_overall_clean %>%
   select(state, year, response, data_value, geo_location)
 ``` 
 
-```{r}
-gglpot
-
 
 
 
