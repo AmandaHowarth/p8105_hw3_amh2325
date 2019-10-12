@@ -69,14 +69,15 @@ apples_icecream_table =
 ```{r}
 data("brfss_smart2010")
 ```
-  
+#Clenaing BRFSS data 
 ```{r}
 brfss_smart2010 %>%
   janitor::clean_names() %>%
   filter(topic == "Overall Health") %>%
-  filter(response %in% c("Poor", "Fair", "Good", "Very Good", "Excellent")) %>%
-  mutate(response = forcats::fct_relevel(response, c("Poor", "Fair", "Good", "Very Good", "Excellent")))
-
+  mutate_all(tolower) %>%
+  filter(response %in% c("poor", "fair", "good", "very good", "excellent")) %>%
+  mutate(response = forcats::fct_relevel(response, c("poor", "fair", "good", "very good", "excellent"))) %>%
+  rename("state" = "locationabbr", "county" = "locationdesc")
 ```
   
 
