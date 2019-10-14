@@ -65,6 +65,7 @@ apples_icecream_table =
   pivot_wider(names_from = "order_dow", values_from = "mean_hour_of_day")
 ```
 
+## Problem 2
 ##Loading BRFSS data 
 ```{r}
 data("brfss_smart2010")
@@ -104,10 +105,12 @@ brfss_excellent = brfss_overall_clean %>%
 ```
 ## Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
 ```{r}
-brfss_excellent_plot = ggplot(brfss_excellent, aes(x = year, y = data_value_average), group = state, color = state) + geom_point() + geom_line() + labs(title = "Average Data Values Across Locations within a State", 
+ggplot(brfss_excellent, aes(x = year, y = data_value_average, group = state, color = state)) + geom_point() + geom_line() 
+  + labs(title = "Average Data Values Across Locations within a State from 2002 - 2010", 
            x = "Year",
            y = "Average data value")
-``` 
+```
+
 ## Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
 ```{r}
 brfss_plot2006_2010 = brfss_overall_clean %>%
