@@ -116,7 +116,54 @@ brfss_plot2006_2010 = brfss_overall_clean %>%
   select(state, year, response, data_value, geo_location)
 ``` 
 
+```{r}
+plot_2006 = 
+  brfss_plot2006_2010 %>%
+  filter(year == "2010") %>%
+  ggplot(aes(x = year, y = data_value_average), group = geo_location, color = blue) + geo_point()
+  
+```
+## Problem #3: Loading Accel_data. Tidying and Wrangling.
+```{r}
+accel_data = 
+  read_csv(file = "./data/accel_data.csv")
+```
+```{r}
+accel_data_clean = accel_data %>%
+  janitor::clean_names() %>%
+  mutate(day = str_to_lower(day)) %>%
+    mutate(weekday_vs_weekend = case_when(
+    day == "monday" ~ "weekday",
+    day == "tuesday" ~ "weekday",
+    day == "wednesday" ~ "weekday",
+    day == "thursday" ~ "weekday",
+    day == "friday" ~ "weekday",
+    day == "saturday" ~ "weekend",
+    day == "sunday" ~ "weekend")) %>% 
+  mutate_if(is.numeric, round, digits = 2) %>% 
+  rename(`day_of_week` = day) %>%
+select(week, day_id, day_of_week, weekday_vs_weekend, everything())
+```  
+There are `r nrow(accel_data_clean)` observations and `r ncol(accel_data_clean)` variables in `accel_data_clean`. There is a variable "week" for which week the man wore the accelerometer, variable "day_id" indicating which day of the 35 days the man wore the accelerometer, variable "day" indicating which day of the week (Monday, Tuesday, etc.), and "weekday_vs_weekend" indicating if the day was during the week or on the weekend. Lastly, there are 1440 variables for activity_*, the activity counts for each minute of a 24-hour day starting at midnight.
 
+## Aggregating accross minutes to create a total activity variable for each day, and creating a table showing these totals. 
+```{r}
+accel_total_table = accel_data_clean %>%
+  pivot_longer(activity_1:activity_1440, names_to = "minute", values_to = "activity_total") %>%
+  group_by(week, day_id, day_of_week) %>% 
+  summarise(activity_total_day = sum(activity_total))
+```
+## Are any trends apparent? 
+There are no trends apparent in the table. The variable "activity_total_day" increases and decreases with no trend or pattern.
 
+## Making a single-panel plot that shows the 24-hour activity time courses for each day and using color to indicate day of the week. 
+```{r}
+accel_total_table %>%
+  ggplot(aes(x = day_id, y = activity_total_day, color = day_of_week)) + geom_line() + labs(title = "Twenty four-hour activity time courses for each day ", 
+           x = "Day",
+           y = "Activity total")
 
+```
+## Are there any patterns or conclusions you can make based on this graph? 
+From the graph above, I can conclude that the the man's physical activity peaked on a Monday, day 16, in the third week. The man's activity was at his lowest for two Saturdays in week 4 and week 5. For weekends, the man's physical activity at baseline (day 1) was greater than his activity at the end (day 35). For weekdays, the man's physical activity was reported to be higher than at baseline. 
 
