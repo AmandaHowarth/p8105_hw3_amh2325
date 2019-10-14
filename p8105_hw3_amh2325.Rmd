@@ -92,12 +92,16 @@ brfss_overall_clean = brfss_smart2010 %>%
 brfss_2002 = brfss_overall_clean %>%
   group_by(year, state) %>%
   summarize(n = n_distinct(geo_location)) %>%
-  filter(year == "2002", n >= 7)
+  filter(year == "2002", n >= 7) %>%
+ knitr::kable() %>% 
+    print()
 
 brfss_2010 = brfss_overall_clean %>%
   group_by(year, state) %>%
   summarize(n = n_distinct(geo_location)) %>%
-  filter(year == "2010", n >= 7)
+  filter(year == "2010", n >= 7) %>%
+ knitr::kable() %>% 
+    print()
 ```
 In 2002, six states (CT[7], FL[7], MA[8], NC[7], NJ[8], PA[10]) were observed at more than seven locations. In 2010, fourteen states (CA[12], CO[7], FL[41], MA[9], MD[12], NC[12], NE[10], NJ[19], NY[9], OH[8], PA[7], SC[7], TX[16], WA[10]) were observed at more than seven locations. 
 
