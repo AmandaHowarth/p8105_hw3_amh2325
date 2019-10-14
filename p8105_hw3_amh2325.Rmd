@@ -11,11 +11,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
-library(p8105.datasets)
 library(dplyr)
 library(viridis)
 library(ggridges) 
 library(patchwork)
+library(knitr)
+library(ggplot2)
 ```
 
 ## Loading instacart data 
@@ -24,15 +25,17 @@ library(p8105.datasets)
 data("instacart")
 ```
 ## Exploring Instacart dataset 
+This dataset has `r nrow(instacart)` observations and `r ncol(instacart)` variables. The following variables are class `character`: `product_name`, `aisle`, and `department`. All other variables are class `integer`. Key variables include the product_name (a descriptive name of the product), aisle (aisle identifier), and the department (deparmtent identifier). An illustrative example from this dataset is customer with `user_id` 112108 ordered Bulgarian yogurt, located in the Yogurt aisle (`department` = dairy eggs). The customer has ordered the Bulgarian yogurt once in the past. This was the first item added to their cart (identified by the variable `add_to_cart_order`).
 
+## How many aisles are there, and which aisles are the most items ordered from?
 ```{r}
 instacart %>%
   count(aisle_id)%>%
   arrange(desc(n))
 ```
-#There are 134 aisles. The most items are ordered from Aisle 83 (150609 items), Aisle 24 (150473 items), and 123 (78493 items).
+There are 134 aisles. The most items are ordered from Aisle 83 (150609 items), Aisle 24 (150473 items), and 123 (78493 items).
 
-#Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+##Make plot showing the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered.
 ```{r}
 instacart%>%
   count(aisle_id)%>%
@@ -42,8 +45,7 @@ instacart%>%
                 x = "Aisle ID",
                 y = "Number of Items Ordered in the Aisle")
 ```
-## Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
-
+## Making a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Including the number of times each item is ordered in table.
 ```{r}
 popular_items_table=
 instacart %>%
@@ -51,9 +53,11 @@ instacart %>%
   count(product_name, name = "count") %>%
   filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>%
   mutate(rank = min_rank(desc(count))) %>%
-  filter(min_rank(rank) < 4)
+  filter(min_rank(rank) < 4) %>% 
+  knitr::kable() %>% 
+    print()
 ```
-
+## Making a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week.
 ```{r}
 apples_icecream_table =
   instacart %>%
@@ -62,15 +66,17 @@ apples_icecream_table =
   filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
   summarise(mean_hour_of_day = mean(order_hour_of_day)) %>%
   mutate(order_dow = recode(order_dow, "0" = "sunday", "1" = "monday", "2" = "tuesday", "3" = "wednesday", "4" = "thursday", "5" = "friday", "6" = "saturday")) %>% 
-  pivot_wider(names_from = "order_dow", values_from = "mean_hour_of_day")
+  pivot_wider(names_from = "order_dow", values_from = "mean_hour_of_day")%>%
+   knitr::kable() %>% 
+    print()
 ```
 
 ## Problem 2
-##Loading BRFSS data 
+## Loading BRFSS data 
 ```{r}
 data("brfss_smart2010")
 ```
-#Cleaning BRFSS data 
+## Cleaning BRFSS data 
 ```{r}
 brfss_overall_clean = brfss_smart2010 %>%
   janitor::clean_names() %>%
@@ -92,9 +98,9 @@ brfss_2010 = brfss_overall_clean %>%
   summarize(n = n_distinct(geo_location)) %>%
   filter(year == "2010", n >= 7)
 ```
-## In 2002, six states (CT[7], FL[7], MA[8], NC[7], NJ[8], PA[10]) were observed at more than seven locations. In 2010, fourteen states (CA[12], CO[7], FL[41], MA[9], MD[12], NC[12], NE[10], NJ[19], NY[9], OH[8], PA[7], SC[7], TX[16], WA[10]) were observed at more than seven locations. 
+In 2002, six states (CT[7], FL[7], MA[8], NC[7], NJ[8], PA[10]) were observed at more than seven locations. In 2010, fourteen states (CA[12], CO[7], FL[41], MA[9], MD[12], NC[12], NE[10], NJ[19], NY[9], OH[8], PA[7], SC[7], TX[16], WA[10]) were observed at more than seven locations. 
 
-## Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state. 
+## Constructing a dataset limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state. 
 ```{r}
 brfss_excellent = brfss_overall_clean %>%
   mutate(data_value = as.numeric(data_value)) %>%
@@ -103,15 +109,14 @@ brfss_excellent = brfss_overall_clean %>%
     summarize(data_value_average = mean(data_value)) %>%
   select(year, state, data_value_average)
 ```
-## Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
+## Making a “spaghetti” plot of this average value over time within a state.
 ```{r}
-ggplot(brfss_excellent, aes(x = year, y = data_value_average, group = state, color = state)) + geom_point() + geom_line() 
-  + labs(title = "Average Data Values Across Locations within a State from 2002 - 2010", 
+ggplot(brfss_excellent, aes(x = year, y = data_value_average, group = state, color = state)) + geom_point() + geom_line() + labs(title = "Average Data Values Across Locations within a State from 2002 - 2010", 
            x = "Year",
            y = "Average data value")
 ```
 
-## Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
+## Making two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
 ```{r}
 brfss_plot2006_2010 = brfss_overall_clean %>%
   mutate(data_value = as.numeric(data_value)) %>%
@@ -123,10 +128,11 @@ brfss_plot2006_2010 = brfss_overall_clean %>%
 plot_2006 = 
   brfss_plot2006_2010 %>%
   filter(year == "2010") %>%
-  ggplot(aes(x = year, y = data_value_average), group = geo_location, color = blue) + geo_point()
+  ggplot(aes(x = year, y = data_value_average), group = geo_location, color = blue) + geom_point()
   
 ```
-## Problem #3: Loading Accel_data. Tidying and Wrangling.
+## Problem #3
+## Loading Accel_data. Tidying and Wrangling.
 ```{r}
 accel_data = 
   read_csv(file = "./data/accel_data.csv")
@@ -147,7 +153,7 @@ accel_data_clean = accel_data %>%
   rename(`day_of_week` = day) %>%
 select(week, day_id, day_of_week, weekday_vs_weekend, everything())
 ```  
-There are `r nrow(accel_data_clean)` observations and `r ncol(accel_data_clean)` variables in `accel_data_clean`. There is a variable "week" for which week the man wore the accelerometer, variable "day_id" indicating which day of the 35 days the man wore the accelerometer, variable "day" indicating which day of the week (Monday, Tuesday, etc.), and "weekday_vs_weekend" indicating if the day was during the week or on the weekend. Lastly, there are 1440 variables for activity_*, the activity counts for each minute of a 24-hour day starting at midnight.
+There are `r nrow(accel_data_clean)` observations and `r ncol(accel_data_clean)` variables in `accel_data_clean`. There is a variable `week` for which week the man wore the accelerometer, variable `day_id` indicating which day of the 35 days the man wore the accelerometer, variable `day_of_week` indicating which day of the week (Monday, Tuesday, etc.), and `weekday_vs_weekend` indicating if the day was during the week or on the weekend. Lastly, there are 1440 variables for activity_*, the activity counts for each minute of a 24-hour day starting at midnight.
 
 ## Aggregating accross minutes to create a total activity variable for each day, and creating a table showing these totals. 
 ```{r}
@@ -167,6 +173,6 @@ accel_total_table %>%
            y = "Activity total")
 
 ```
-## Are there any patterns or conclusions you can make based on this graph? 
+Are there any patterns or conclusions you can make based on this graph? 
 From the graph above, I can conclude that the the man's physical activity peaked on a Monday, day 16, in the third week. The man's activity was at his lowest for two Saturdays in week 4 and week 5. For weekends, the man's physical activity at baseline (day 1) was greater than his activity at the end (day 35). For weekdays, the man's physical activity was reported to be higher than at baseline. 
 
