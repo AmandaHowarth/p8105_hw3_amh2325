@@ -35,7 +35,7 @@ instacart %>%
 ```
 There are 134 aisles. The most items are ordered from Aisle 83 (150609 items), Aisle 24 (150473 items), and 123 (78493 items).
 
-##Make plot showing the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered.
+## Make plot showing the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered.
 ```{r}
 instacart%>%
   count(aisle_id)%>%
